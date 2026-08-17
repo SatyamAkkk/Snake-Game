@@ -12,23 +12,12 @@ const timeElement = document.querySelector("#time")
 const levelElement = document.querySelector("#level")
 const finalScoreElement = document.querySelector("#final-score")
 const pauseOverlay = document.querySelector(".pause-overlay")
+const touchPauseButton = document.querySelector("#touch-pause")
 
-// ── Grid setup: fixed cell size, compute cols/rows from available space ──
-const CELL = 28
-
-function computeGrid() {
-  const wrapW = boardWrapper.clientWidth - 2   // -2 for border
-  const wrapH = boardWrapper.clientHeight - 2
-  const cols = Math.floor(wrapW / CELL)
-  const rows = Math.floor(wrapH / CELL)
-  board.style.setProperty('--cols', cols)
-  board.style.setProperty('--rows', rows)
-  return { cols, rows }
-}
-
-const { cols, rows } = computeGrid()
-
-// ── State ──
+// ── State variables ──
+let cols = 0
+let rows = 0
+let blocks = {}
 let highScore = parseInt(localStorage.getItem("highScore")) || 0
 let score = 0
 let seconds = 0
@@ -38,21 +27,49 @@ let isPaused = false
 let gameRunning = false
 let pendingDirection = null
 let direction = 'right'
-let snake = [{ x: Math.floor(rows / 2), y: 3 }]
-let food = randomPosition()
+let snake = []
+let food = { x: 0, y: 0 }
 
 highScoreElement.innerText = highScore
 
-// ── Build grid ──
-const blocks = {}
-for (let row = 0; row < rows; row++) {
-  for (let col = 0; col < cols; col++) {
-    const block = document.createElement('div')
-    block.classList.add("block")
-    board.appendChild(block)
-    blocks[`${row}-${col}`] = block
+// ── Dynamic Responsive Grid Computation ──
+function getCellSize() {
+  const rootStyle = getComputedStyle(document.documentElement)
+  return parseInt(rootStyle.getPropertyValue('--cell')) || 28
+}
+
+function initGrid() {
+  board.innerHTML = ""
+  blocks = {}
+
+  const cell = getCellSize()
+  const wrapW = boardWrapper.clientWidth - 2
+  const wrapH = boardWrapper.clientHeight - 2
+
+  cols = Math.max(10, Math.floor(wrapW / cell))
+  rows = Math.max(10, Math.floor(wrapH / cell))
+
+  board.style.setProperty('--cols', cols)
+  board.style.setProperty('--rows', rows)
+
+  for (let row = 0; row < rows; row++) {
+    for (let col = 0; col < cols; col++) {
+      const block = document.createElement('div')
+      block.classList.add("block")
+      board.appendChild(block)
+      blocks[`${row}-${col}`] = block
+    }
   }
 }
+
+// Initial Grid Build
+initGrid()
+
+// Handle window/orientation resize gracefully
+window.addEventListener("resize", () => {
+  if (gameRunning) return
+  initGrid()
+})
 
 // ── Helpers ──
 function randomPosition() {
@@ -75,6 +92,19 @@ function updateTimer() {
   const mins = String(Math.floor(seconds / 60)).padStart(2, '0')
   const secs = String(seconds % 60).padStart(2, '0')
   timeElement.innerText = `${mins}:${secs}`
+}
+
+function changeDirection(newDir) {
+  const opposites = { up: "down", down: "up", left: "right", right: "left" }
+  if (newDir && newDir !== opposites[direction] && newDir !== direction) {
+    pendingDirection = newDir
+  }
+}
+
+function togglePause() {
+  if (!gameRunning) return
+  isPaused = !isPaused
+  pauseOverlay.style.display = isPaused ? "flex" : "none"
 }
 
 // ── Render ──
@@ -104,9 +134,17 @@ function render() {
 
   // Food collision
   if (head.x === food.x && head.y === food.y) {
-    blocks[`${food.x}-${food.y}`].classList.remove("food")
-    do { food = randomPosition() } while (snake.some(s => s.x === food.x && s.y === food.y))
-    blocks[`${food.x}-${food.y}`].classList.add("food")
+    if (blocks[`${food.x}-${food.y}`]) {
+      blocks[`${food.x}-${food.y}`].classList.remove("food")
+    }
+    
+    do { 
+      food = randomPosition() 
+    } while (snake.some(s => s.x === food.x && s.y === food.y))
+    
+    if (blocks[`${food.x}-${food.y}`]) {
+      blocks[`${food.x}-${food.y}`].classList.add("food")
+    }
 
     const prevLevel = getLevel()
     snake.unshift(head)
@@ -123,7 +161,7 @@ function render() {
     levelElement.innerText = newLevel
     if (newLevel > prevLevel) {
       levelElement.classList.remove("level-up")
-      void levelElement.offsetWidth // reflow to restart animation
+      void levelElement.offsetWidth
       levelElement.classList.add("level-up")
     }
 
@@ -137,7 +175,9 @@ function render() {
   snake.unshift(head)
   snake.pop()
   updateSnakeDOM()
-  blocks[`${food.x}-${food.y}`].classList.add("food")
+  if (blocks[`${food.x}-${food.y}`]) {
+    blocks[`${food.x}-${food.y}`].classList.add("food")
+  }
 }
 
 function clearSnakeDOM() {
@@ -174,16 +214,18 @@ function endGame() {
 }
 
 function startGame() {
+  initGrid()
+  resetState()
   modal.style.display = "none"
   gameRunning = true
   isPaused = false
-  seconds = 0
-  timeElement.innerText = "00:00"
-  levelElement.innerText = "1"
+
   timerInterval = setInterval(updateTimer, 1000)
   intervalId = setInterval(render, getSpeed())
-  // Draw initial food
-  blocks[`${food.x}-${food.y}`].classList.add("food")
+
+  if (blocks[`${food.x}-${food.y}`]) {
+    blocks[`${food.x}-${food.y}`].classList.add("food")
+  }
 }
 
 function resetState() {
@@ -191,7 +233,9 @@ function resetState() {
   clearInterval(timerInterval)
 
   clearSnakeDOM()
-  if (blocks[`${food.x}-${food.y}`]) blocks[`${food.x}-${food.y}`].classList.remove("food")
+  if (blocks[`${food.x}-${food.y}`]) {
+    blocks[`${food.x}-${food.y}`].classList.remove("food")
+  }
 
   score = 0
   seconds = 0
@@ -206,21 +250,15 @@ function resetState() {
   levelElement.innerText = "1"
 }
 
-// ── Events ──
+// ── Event Listeners ──
 startButton.addEventListener("click", startGame)
 
-restartButton.addEventListener("click", () => {
-  resetState()
-  startGame()
-})
+restartButton.addEventListener("click", startGame)
 
-addEventListener("keydown", (event) => {
-  const opposites = { up: "down", down: "up", left: "right", right: "left" }
-
+// Keyboard Controls
+window.addEventListener("keydown", (event) => {
   if (event.key === " " || event.key === "Escape") {
-    if (!gameRunning) return
-    isPaused = !isPaused
-    pauseOverlay.style.display = isPaused ? "flex" : "none"
+    togglePause()
     return
   }
 
@@ -229,9 +267,42 @@ addEventListener("keydown", (event) => {
     w: "up", W: "up", s: "down", S: "down", a: "left", A: "left", d: "right", D: "right"
   }
 
-  const newDir = keyMap[event.key]
-  if (newDir && newDir !== opposites[direction] && newDir !== direction) {
-    pendingDirection = newDir
+  if (keyMap[event.key]) {
+    changeDirection(keyMap[event.key])
     event.preventDefault()
   }
 })
+
+// D-Pad Touch Button Controls
+document.querySelectorAll(".dpad-btn[data-dir]").forEach(btn => {
+  btn.addEventListener("touchstart", (e) => {
+    e.preventDefault()
+    changeDirection(btn.dataset.dir)
+  })
+  btn.addEventListener("click", () => {
+    changeDirection(btn.dataset.dir)
+  })
+})
+
+touchPauseButton.addEventListener("click", togglePause)
+
+// Touch Swipe Gesture Support for Mobiles
+let touchStartX = 0
+let touchStartY = 0
+
+boardWrapper.addEventListener("touchstart", (e) => {
+  touchStartX = e.touches[0].clientX
+  touchStartY = e.touches[0].clientY
+}, { passive: true })
+
+boardWrapper.addEventListener("touchend", (e) => {
+  if (!gameRunning || isPaused) return
+  const dx = e.changedTouches[0].clientX - touchStartX
+  const dy = e.changedTouches[0].clientY - touchStartY
+
+  if (Math.abs(dx) > Math.abs(dy)) {
+    if (Math.abs(dx) > 30) changeDirection(dx > 0 ? "right" : "left")
+  } else {
+    if (Math.abs(dy) > 30) changeDirection(dy > 0 ? "down" : "up")
+  }
+}, { passive: true })
