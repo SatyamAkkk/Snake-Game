@@ -12,11 +12,11 @@ const timeElement = document.querySelector("#time")
 const levelElement = document.querySelector("#level")
 const finalScoreElement = document.querySelector("#final-score")
 
-// ── State Variables ──
+// ── State variables ──
+let CELL = 24
 let cols = 0
 let rows = 0
 let blocks = {}
-let CELL = 28
 
 let highScore = parseInt(localStorage.getItem("highScore")) || 0
 let score = 0
@@ -31,28 +31,24 @@ let food = { x: 0, y: 0 }
 
 highScoreElement.innerText = highScore
 
-// ── Dynamic Responsive Grid Calculator ──
-function getCellSize() {
-  const w = window.innerWidth
-  if (w < 600) return 22
-  if (w < 1024) return 26
-  return 28
-}
+// ── Calculate Grid according to viewport ──
+function computeGrid() {
+  CELL = window.innerWidth >= 768 ? 28 : 22
+  document.documentElement.style.setProperty('--cell', `${CELL}px`)
 
-function computeAndBuildGrid() {
-  CELL = getCellSize()
-  const wrapW = Math.max(boardWrapper.clientWidth - 4, CELL * 10)
-  const wrapH = Math.max(boardWrapper.clientHeight - 4, CELL * 10)
+  const wrapW = boardWrapper.clientWidth - 4
+  const wrapH = boardWrapper.clientHeight - 4
 
-  cols = Math.floor(wrapW / CELL)
-  rows = Math.floor(wrapH / CELL)
+  cols = Math.max(10, Math.floor(wrapW / CELL))
+  rows = Math.max(10, Math.floor(wrapH / CELL))
 
   board.style.setProperty('--cols', cols)
   board.style.setProperty('--rows', rows)
+}
 
+function buildGridDOM() {
   board.innerHTML = ''
   blocks = {}
-
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
       const block = document.createElement('div')
@@ -63,13 +59,16 @@ function computeAndBuildGrid() {
   }
 }
 
-// Initial setup
-computeAndBuildGrid()
+function initGrid() {
+  computeGrid()
+  buildGridDOM()
+}
 
-// Adjust on Screen Resize / Orientation Change
+initGrid()
+
 window.addEventListener('resize', () => {
   if (!gameRunning) {
-    computeAndBuildGrid()
+    initGrid()
   }
 })
 
@@ -96,15 +95,15 @@ function updateTimer() {
   timeElement.innerText = `${mins}:${secs}`
 }
 
-// ── Direction Handler ──
-function changeDirection(newDir) {
+// ── Direct Direction Controller ──
+function handleDirectionChange(newDir) {
   const opposites = { up: "down", down: "up", left: "right", right: "left" }
   if (newDir && newDir !== opposites[direction] && newDir !== direction) {
     pendingDirection = newDir
   }
 }
 
-// ── Main Render Loop ──
+// ── Render Frame ──
 function render() {
   if (pendingDirection) {
     direction = pendingDirection
@@ -117,19 +116,19 @@ function render() {
   else if (direction === "down") head = { x: snake[0].x + 1, y: snake[0].y }
   else if (direction === "up") head = { x: snake[0].x - 1, y: snake[0].y }
 
-  // Wall collision check
+  // Wall collision
   if (head.x < 0 || head.x >= rows || head.y < 0 || head.y >= cols) {
     endGame()
     return
   }
 
-  // Self collision check
+  // Self collision
   if (snake.some(seg => seg.x === head.x && seg.y === head.y)) {
     endGame()
     return
   }
 
-  // Food collision check
+  // Food collision
   if (head.x === food.x && head.y === food.y) {
     if (blocks[`${food.x}-${food.y}`]) {
       blocks[`${food.x}-${food.y}`].classList.remove("food")
@@ -167,12 +166,11 @@ function render() {
     return
   }
 
-  // Normal snake movement
+  // Normal move
   clearSnakeDOM()
   snake.unshift(head)
   snake.pop()
   updateSnakeDOM()
-
   if (blocks[`${food.x}-${food.y}`]) {
     blocks[`${food.x}-${food.y}`].classList.add("food")
   }
@@ -200,7 +198,7 @@ function restartLoop() {
   intervalId = setInterval(render, getSpeed())
 }
 
-// ── Game Lifecycle ──
+// ── Game lifecycle ──
 function endGame() {
   clearInterval(intervalId)
   clearInterval(timerInterval)
@@ -212,15 +210,10 @@ function endGame() {
 }
 
 function startGame() {
-  computeAndBuildGrid()
+  initGrid()
   resetState()
-
   modal.style.display = "none"
   gameRunning = true
-  seconds = 0
-  timeElement.innerText = "00:00"
-  levelElement.innerText = "1"
-
   timerInterval = setInterval(updateTimer, 1000)
   intervalId = setInterval(render, getSpeed())
 
@@ -250,15 +243,12 @@ function resetState() {
   levelElement.innerText = "1"
 }
 
-// ── Input Event Listeners ──
+// ── Event Listeners ──
 startButton.addEventListener("click", startGame)
 
-restartButton.addEventListener("click", () => {
-  startGame()
-})
+restartButton.addEventListener("click", startGame)
 
-// Keyboard Navigation
-addEventListener("keydown", (event) => {
+window.addEventListener("keydown", (event) => {
   const keyMap = {
     ArrowUp: "up", ArrowDown: "down", ArrowLeft: "left", ArrowRight: "right",
     w: "up", W: "up", s: "down", S: "down", a: "left", A: "left", d: "right", D: "right"
@@ -266,21 +256,19 @@ addEventListener("keydown", (event) => {
 
   const newDir = keyMap[event.key]
   if (newDir) {
-    changeDirection(newDir)
+    handleDirectionChange(newDir)
     event.preventDefault()
   }
 })
 
-// Touch D-Pad Buttons Event Listener (Optimized for Mobile/Motorola devices)
-document.querySelectorAll('.dpad-btn').forEach(button => {
-  const handleTouch = (e) => {
+// Touch D-Pad Events (Fix for Motorola and Small Devices)
+const dpadButtons = document.querySelectorAll('.dpad-btn')
+dpadButtons.forEach(btn => {
+  const triggerDir = (e) => {
     e.preventDefault()
-    const targetDir = button.getAttribute('data-dir')
-    if (targetDir) {
-      changeDirection(targetDir)
-    }
+    const dir = btn.getAttribute('data-dir')
+    if (dir) handleDirectionChange(dir)
   }
 
-  button.addEventListener('touchstart', handleTouch, { passive: false })
-  button.addEventListener('click', handleTouch)
+  btn.addEventListener('pointerdown', triggerDir)
 })
