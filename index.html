@@ -33,19 +33,20 @@
       <div class="board"></div>
     </div>
 
-    <!-- On-screen D-Pad Controls for Small/Medium Devices -->
-    <div class="controls-container">
+    <!-- Touch Controls for Mobile and Tablet Devices -->
+    <div class="touch-controls">
       <div class="dpad">
-        <button class="dpad-btn btn-up" data-dir="up" aria-label="Up">▲</button>
+        <button type="button" class="dpad-btn btn-up" data-dir="up" aria-label="Up">▲</button>
         <div class="dpad-middle">
-          <button class="dpad-btn btn-left" data-dir="left" aria-label="Left">◀</button>
-          <button class="dpad-btn btn-right" data-dir="right" aria-label="Right">▶</button>
+          <button type="button" class="dpad-btn btn-left" data-dir="left" aria-label="Left">◀</button>
+          <div class="dpad-center"></div>
+          <button type="button" class="dpad-btn btn-right" data-dir="right" aria-label="Right">▶</button>
         </div>
-        <button class="dpad-btn btn-down" data-dir="down" aria-label="Down">▼</button>
+        <button type="button" class="dpad-btn btn-down" data-dir="down" aria-label="Down">▼</button>
       </div>
     </div>
 
-    <p class="controls-hint">Arrow keys / WASD or On-screen controls</p>
+    <p class="controls-hint">Arrow keys / WASD or On-Screen Controls</p>
   </main>
 
   <div class="modal">
@@ -53,15 +54,16 @@
       <h2>🐍 Snake</h2>
       <p>Eat food to grow. Don't hit the walls or yourself.</p>
       <div class="key-hints">
-        <span>Use Arrow Keys, WASD, or On-Screen buttons to move</span>
+        <span>↑ ↓ ← → or W A S D to move</span>
+        <span>Use touch buttons on mobile screens</span>
       </div>
-      <button class="btn btn-start">Start Game</button>
+      <button type="button" class="btn btn-start">Start Game</button>
     </div>
 
     <div class="game-over">
       <h2>Game Over</h2>
       <p>Your score<br><strong id="final-score">0</strong></p>
-      <button class="btn btn-restart">Play Again</button>
+      <button type="button" class="btn btn-restart">Play Again</button>
     </div>
   </div>
 
