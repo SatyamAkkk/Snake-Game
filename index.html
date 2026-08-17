@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Snake Game</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <main>
+    <div class="infos">
+      <div class="info">
+        <span class="info-label">High Score</span>
+        <span id="high-score">0</span>
+      </div>
+      <div class="info">
+        <span class="info-label">Score</span>
+        <span id="score">0</span>
+      </div>
+      <div class="info">
+        <span class="info-label">Level</span>
+        <span id="level">1</span>
+      </div>
+      <div class="info">
+        <span class="info-label">Time</span>
+        <span id="time">00:00</span>
+      </div>
+    </div>
+
+    <div class="board-wrapper">
+      <div class="board"></div>
+    </div>
+
+    <p class="controls-hint">Arrow keys or WASD &nbsp;·&nbsp; Space / Esc to pause</p>
+  </main>
+
+  <div class="modal">
+    <div class="start-game">
+      <h2>🐍 Snake</h2>
+      <p>Eat food to grow. Don't hit the walls or yourself.</p>
+      <div class="key-hints">
+        <span>↑ ↓ ← → or W A S D to move</span>
+        <span>Space / Esc to pause</span>
+      </div>
+      <button class="btn btn-start">Start Game</button>
+    </div>
+
+    <div class="game-over">
+      <h2>Game Over</h2>
+      <p>Your score<br><strong id="final-score">0</strong></p>
+      <button class="btn btn-restart">Play Again</button>
+    </div>
+  </div>
+
+  <div class="pause-overlay">
+    <h2>Paused</h2>
+    <p>Press Space or Esc to resume</p>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+
+</html>

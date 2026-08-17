@@ -1,0 +1,279 @@
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+:root {
+  --bg-primary: #0c0c0c;
+  --bg-surface: #141414;
+  --bg-fill: #e2e2e2;
+  --bg-food: #ff3b3b;
+  --bg-food-glow: #ff3b3b66;
+  --bg-head: #ffffff;
+
+  --text-primary: #f0f0f0;
+  --text-muted: #666;
+
+  --border: #222;
+  --accent: #4ade80;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+
+  --cell: 28px;
+}
+
+html {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* ── Layout ── */
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  height: 100%;
+  padding: 24px 16px 16px;
+}
+
+/* ── Info bar ── */
+.infos {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 20px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  min-width: 80px;
+}
+
+.info-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+}
+
+.info span:last-child {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Board wrapper keeps it square & centered ── */
+.board-wrapper {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 0;
+}
+
+.board {
+  /* JS will set exact --cols and --rows via inline style */
+  --cols: 20;
+  --rows: 16;
+  display: grid;
+  grid-template-columns: repeat(var(--cols), var(--cell));
+  grid-template-rows: repeat(var(--rows), var(--cell));
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: #0e0e0e;
+  box-shadow: 0 0 60px #00000088, 0 0 0 1px var(--border);
+}
+
+.block {
+  width: var(--cell);
+  height: var(--cell);
+  border-right: 1px solid #181818;
+  border-bottom: 1px solid #181818;
+}
+
+.fill {
+  background-color: var(--bg-fill);
+  border-color: #c8c8c8;
+  border-radius: 3px;
+}
+
+.snake-head {
+  background-color: var(--bg-head);
+  border-color: #fff;
+  border-radius: 5px;
+  box-shadow: 0 0 6px #ffffff55;
+}
+
+.food {
+  background-color: var(--bg-food);
+  box-shadow: 0 0 10px var(--bg-food-glow);
+  border-radius: 50%;
+  border-color: transparent;
+}
+
+/* ── Controls hint ── */
+.controls-hint {
+  font-size: 11px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  letter-spacing: 0.03em;
+}
+
+/* ── Modal ── */
+.modal {
+  height: 100vh;
+  width: 100vw;
+  position: fixed;
+  inset: 0;
+  background-color: #000000bb;
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+}
+
+.start-game,
+.game-over {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  background: var(--bg-surface);
+  border: 1px solid #2a2a2a;
+  border-radius: var(--radius-lg);
+  padding: 40px 36px;
+  width: 340px;
+  text-align: center;
+  box-shadow: 0 24px 80px #00000099;
+}
+
+.start-game h2,
+.game-over h2 {
+  font-size: 26px;
+  letter-spacing: -0.02em;
+}
+
+.start-game p,
+.game-over p {
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.game-over {
+  display: none;
+}
+
+.game-over p strong {
+  color: var(--accent);
+  font-size: 22px;
+}
+
+.key-hints {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-muted);
+  background: #1a1a1a;
+  padding: 10px 16px;
+  border-radius: var(--radius-sm);
+  width: 100%;
+  border: 1px solid var(--border);
+}
+
+/* ── Button ── */
+.btn {
+  padding: 10px 24px;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.18s ease;
+  background: var(--accent);
+  color: #0c0c0c;
+  width: 100%;
+  letter-spacing: 0.02em;
+}
+
+.btn:hover {
+  background: #6ee7a0;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px #4ade8044;
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+/* ── Pause overlay ── */
+.pause-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background-color: #00000099;
+  backdrop-filter: blur(6px);
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 9;
+}
+
+.pause-overlay h2 {
+  font-size: 40px;
+  color: var(--accent);
+  letter-spacing: -0.02em;
+}
+
+.pause-overlay p {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+/* ── Level-up flash ── */
+@keyframes levelFlash {
+  0% {
+    color: var(--accent);
+    transform: scale(1.4);
+  }
+
+  100% {
+    color: var(--accent);
+    transform: scale(1);
+  }
+}
+
+.level-up {
+  animation: levelFlash 0.4s ease-out;
+}
