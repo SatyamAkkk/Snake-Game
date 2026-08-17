@@ -2,8 +2,8 @@
   padding: 0;
   margin: 0;
   box-sizing: border-box;
-  touch-action: manipulation; /* Prevents double-tap zoom on phones */
-  user-select: none;
+  touch-action: manipulation; /* Prevents double-tap zoom on mobile */
+  -webkit-tap-highlight-color: transparent;
 }
 
 html,
@@ -18,7 +18,7 @@ body {
   --bg-surface: #141414;
   --bg-fill: #e2e2e2;
   --bg-food: #ff3b3b;
-  --bg-food-glow: rgba(255, 59, 59, 0.4);
+  --bg-food-glow: #ff3b3b66;
   --bg-head: #ffffff;
 
   --text-primary: #f0f0f0;
@@ -31,7 +31,7 @@ body {
   --radius-md: 12px;
   --radius-lg: 20px;
 
-  --cell: 28px;
+  --cell: 20px; /* Fallback, dynamically overriden in JS */
 }
 
 html {
@@ -53,8 +53,8 @@ main {
   gap: 12px;
   width: 100%;
   height: 100%;
-  padding: 12px 12px 16px;
-  max-width: 900px;
+  max-width: 800px;
+  padding: 12px 10px;
 }
 
 /* ── Info Bar ── */
@@ -75,7 +75,7 @@ main {
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   flex: 1;
-  max-width: 120px;
+  max-width: 100px;
 }
 
 .info-label {
@@ -93,7 +93,7 @@ main {
   font-variant-numeric: tabular-nums;
 }
 
-/* ── Board Wrapper ── */
+/* ── Responsive Board Wrapper ── */
 .board-wrapper {
   flex: 1;
   width: 100%;
@@ -101,11 +101,12 @@ main {
   justify-content: center;
   align-items: center;
   min-height: 0;
+  overflow: hidden;
 }
 
 .board {
   --cols: 20;
-  --rows: 16;
+  --rows: 20;
   display: grid;
   grid-template-columns: repeat(var(--cols), var(--cell));
   grid-template-rows: repeat(var(--rows), var(--cell));
@@ -113,7 +114,7 @@ main {
   border-radius: var(--radius-md);
   overflow: hidden;
   background: #0e0e0e;
-  box-shadow: 0 0 40px rgba(0, 0, 0, 0.8), 0 0 0 1px var(--border);
+  box-shadow: 0 0 30px #000000aa, 0 0 0 1px var(--border);
 }
 
 .block {
@@ -133,7 +134,7 @@ main {
   background-color: var(--bg-head);
   border-color: #fff;
   border-radius: 5px;
-  box-shadow: 0 0 6px rgba(255, 255, 255, 0.5);
+  box-shadow: 0 0 6px #ffffff55;
 }
 
 .food {
@@ -143,8 +144,8 @@ main {
   border-color: transparent;
 }
 
-/* ── On-Screen D-Pad (Visible on Small & Medium Devices) ── */
-.dpad-controls {
+/* ── Touch Controls (D-Pad) ── */
+.touch-controls {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -153,92 +154,79 @@ main {
   flex-shrink: 0;
 }
 
-.dpad-row {
+.d-row {
   display: flex;
-  gap: 10px;
-  align-items: center;
+  gap: 12px;
 }
 
-.dpad-btn {
-  width: 52px;
-  height: 52px;
+.d-btn {
+  width: 50px;
+  height: 50px;
   background: var(--bg-surface);
-  border: 1px solid #2e2e2e;
+  border: 1px solid #333;
   color: var(--text-primary);
-  border-radius: 12px;
   font-size: 18px;
+  border-radius: 12px;
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  transition: background 0.1s ease, transform 0.1s ease;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  user-select: none;
+  transition: background 0.1s, transform 0.1s;
 }
 
-.dpad-btn:active {
-  background: #252525;
-  transform: scale(0.92);
-  border-color: var(--accent);
+.d-btn:active {
+  background: var(--accent);
+  color: #000;
+  transform: scale(0.95);
 }
 
-.pause-btn {
+.d-pause {
+  background: #222;
   font-size: 14px;
-  background: #1c1c1c;
-  color: var(--accent);
 }
 
+/* Show hints primarily on Large screens */
 .controls-hint {
   font-size: 11px;
   color: var(--text-muted);
   flex-shrink: 0;
-  letter-spacing: 0.03em;
+  text-align: center;
 }
 
-/* Hide D-Pad on Large Desktop screens */
+/* Hide Touch D-Pad on Large screens with Mouse/Keyboard */
 @media (min-width: 1024px) {
-  .dpad-controls {
+  .touch-controls {
     display: none;
   }
 }
 
-/* Hide Keyboard hints on Mobile/Tablet screens */
-@media (max-width: 1023px) {
-  .controls-hint {
-    display: none;
+/* Small Screens Adjustments */
+@media (max-height: 650px) {
+  main {
+    gap: 6px;
+    padding: 8px;
   }
-}
-
-/* Dynamic --cell Scaling for Responsive Layouts */
-@media (max-width: 768px) {
-  :root {
-    --cell: 20px;
+  .d-btn {
+    width: 44px;
+    height: 44px;
+    font-size: 16px;
+  }
+  .info {
+    padding: 4px 8px;
   }
   .info span:last-child {
     font-size: 14px;
   }
-  .info-label {
-    font-size: 8px;
-  }
 }
 
-@media (max-width: 480px) {
-  :root {
-    --cell: 16px;
-  }
-  .dpad-btn {
-    width: 46px;
-    height: 46px;
-    font-size: 16px;
-  }
-}
-
-/* ── Modal ── */
+/* ── Modal & Overlays ── */
 .modal {
   height: 100vh;
   width: 100vw;
   position: fixed;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.8);
+  background-color: #000000bb;
   backdrop-filter: blur(8px);
   display: flex;
   justify-content: center;
@@ -256,11 +244,11 @@ main {
   background: var(--bg-surface);
   border: 1px solid #2a2a2a;
   border-radius: var(--radius-lg);
-  padding: 30px 24px;
+  padding: 28px 24px;
   width: 100%;
   max-width: 340px;
   text-align: center;
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.9);
+  box-shadow: 0 24px 80px #00000099;
 }
 
 .start-game h2,
@@ -291,13 +279,12 @@ main {
   font-size: 11px;
   color: var(--text-muted);
   background: #1a1a1a;
-  padding: 10px;
+  padding: 10px 12px;
   border-radius: var(--radius-sm);
   width: 100%;
   border: 1px solid var(--border);
 }
 
-/* ── Button ── */
 .btn {
   padding: 12px 24px;
   border: none;
@@ -313,20 +300,18 @@ main {
 
 .btn:hover {
   background: #6ee7a0;
-  box-shadow: 0 4px 16px rgba(74, 222, 128, 0.3);
 }
 
-/* ── Pause Overlay ── */
 .pause-overlay {
   display: none;
   position: fixed;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: #00000099;
   backdrop-filter: blur(6px);
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   z-index: 9;
 }
 
@@ -341,8 +326,14 @@ main {
 }
 
 @keyframes levelFlash {
-  0% { transform: scale(1.4); }
-  100% { transform: scale(1); }
+  0% {
+    color: var(--accent);
+    transform: scale(1.3);
+  }
+  100% {
+    color: var(--accent);
+    transform: scale(1);
+  }
 }
 
 .level-up {
