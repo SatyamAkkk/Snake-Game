@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Snake Game</title>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -33,6 +33,17 @@
       <div class="board"></div>
     </div>
 
+    <!-- On-Screen D-Pad Controls for Small & Medium Devices -->
+    <div class="dpad-controls">
+      <button class="dpad-btn up" data-dir="up">▲</button>
+      <div class="dpad-row">
+        <button class="dpad-btn left" data-dir="left">◄</button>
+        <button class="dpad-btn pause-btn" id="touch-pause">⏸</button>
+        <button class="dpad-btn right" data-dir="right">►</button>
+      </div>
+      <button class="dpad-btn down" data-dir="down">▼</button>
+    </div>
+
     <p class="controls-hint">Arrow keys or WASD &nbsp;·&nbsp; Space / Esc to pause</p>
   </main>
 
@@ -42,7 +53,7 @@
       <p>Eat food to grow. Don't hit the walls or yourself.</p>
       <div class="key-hints">
         <span>↑ ↓ ← → or W A S D to move</span>
-        <span>Space / Esc to pause</span>
+        <span>Space / Esc or ⏸ to pause</span>
       </div>
       <button class="btn btn-start">Start Game</button>
     </div>
@@ -56,7 +67,7 @@
 
   <div class="pause-overlay">
     <h2>Paused</h2>
-    <p>Press Space or Esc to resume</p>
+    <p>Tap ⏸ or press Space/Esc to resume</p>
   </div>
 
   <script src="script.js"></script>
