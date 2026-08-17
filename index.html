@@ -33,18 +33,19 @@
       <div class="board"></div>
     </div>
 
-    <!-- On-Screen Touch D-Pad Controls for Mobile/Tablet -->
-    <div class="touch-controls">
-      <button class="d-btn d-up" data-dir="up">▲</button>
-      <div class="d-row">
-        <button class="d-btn d-left" data-dir="left">◀</button>
-        <button class="d-btn d-pause" id="btn-touch-pause">⏸</button>
-        <button class="d-btn d-right" data-dir="right">▶</button>
+    <!-- On-screen D-Pad Controls for Small/Medium Devices -->
+    <div class="controls-container">
+      <div class="dpad">
+        <button class="dpad-btn btn-up" data-dir="up" aria-label="Up">▲</button>
+        <div class="dpad-middle">
+          <button class="dpad-btn btn-left" data-dir="left" aria-label="Left">◀</button>
+          <button class="dpad-btn btn-right" data-dir="right" aria-label="Right">▶</button>
+        </div>
+        <button class="dpad-btn btn-down" data-dir="down" aria-label="Down">▼</button>
       </div>
-      <button class="d-btn d-down" data-dir="down">▼</button>
     </div>
 
-    <p class="controls-hint">Arrow keys / WASD or On-screen D-Pad &nbsp;·&nbsp; Space / Esc to pause</p>
+    <p class="controls-hint">Arrow keys / WASD or On-screen controls</p>
   </main>
 
   <div class="modal">
@@ -52,8 +53,7 @@
       <h2>🐍 Snake</h2>
       <p>Eat food to grow. Don't hit the walls or yourself.</p>
       <div class="key-hints">
-        <span>↑ ↓ ← → or W A S D / Touch D-Pad to move</span>
-        <span>Space / Esc or ⏸ button to pause</span>
+        <span>Use Arrow Keys, WASD, or On-Screen buttons to move</span>
       </div>
       <button class="btn btn-start">Start Game</button>
     </div>
@@ -63,11 +63,6 @@
       <p>Your score<br><strong id="final-score">0</strong></p>
       <button class="btn btn-restart">Play Again</button>
     </div>
-  </div>
-
-  <div class="pause-overlay">
-    <h2>Paused</h2>
-    <p>Press Space/Esc or tap Pause to resume</p>
   </div>
 
   <script src="script.js"></script>
