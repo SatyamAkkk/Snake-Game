@@ -2,6 +2,8 @@
   padding: 0;
   margin: 0;
   box-sizing: border-box;
+  touch-action: manipulation; /* Prevents double-tap zoom on phones */
+  user-select: none;
 }
 
 html,
@@ -16,11 +18,11 @@ body {
   --bg-surface: #141414;
   --bg-fill: #e2e2e2;
   --bg-food: #ff3b3b;
-  --bg-food-glow: #ff3b3b66;
+  --bg-food-glow: rgba(255, 59, 59, 0.4);
   --bg-head: #ffffff;
 
   --text-primary: #f0f0f0;
-  --text-muted: #666;
+  --text-muted: #888;
 
   --border: #222;
   --accent: #4ade80;
@@ -38,7 +40,6 @@ html {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-/* ── Layout ── */
 body {
   display: flex;
   justify-content: center;
@@ -49,16 +50,19 @@ main {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
   width: 100%;
   height: 100%;
-  padding: 24px 16px 16px;
+  padding: 12px 12px 16px;
+  max-width: 900px;
 }
 
-/* ── Info bar ── */
+/* ── Info Bar ── */
 .infos {
   display: flex;
-  gap: 10px;
+  gap: 8px;
+  width: 100%;
+  justify-content: center;
   flex-shrink: 0;
 }
 
@@ -66,29 +70,30 @@ main {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 8px 20px;
+  padding: 6px 12px;
   background: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  min-width: 80px;
+  flex: 1;
+  max-width: 120px;
 }
 
 .info-label {
-  font-size: 10px;
+  font-size: 9px;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   color: var(--text-muted);
   margin-bottom: 2px;
 }
 
 .info span:last-child {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--accent);
   font-variant-numeric: tabular-nums;
 }
 
-/* ── Board wrapper keeps it square & centered ── */
+/* ── Board Wrapper ── */
 .board-wrapper {
   flex: 1;
   width: 100%;
@@ -99,7 +104,6 @@ main {
 }
 
 .board {
-  /* JS will set exact --cols and --rows via inline style */
   --cols: 20;
   --rows: 16;
   display: grid;
@@ -109,14 +113,14 @@ main {
   border-radius: var(--radius-md);
   overflow: hidden;
   background: #0e0e0e;
-  box-shadow: 0 0 60px #00000088, 0 0 0 1px var(--border);
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.8), 0 0 0 1px var(--border);
 }
 
 .block {
   width: var(--cell);
   height: var(--cell);
-  border-right: 1px solid #181818;
-  border-bottom: 1px solid #181818;
+  border-right: 1px solid #161616;
+  border-bottom: 1px solid #161616;
 }
 
 .fill {
@@ -129,7 +133,7 @@ main {
   background-color: var(--bg-head);
   border-color: #fff;
   border-radius: 5px;
-  box-shadow: 0 0 6px #ffffff55;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.5);
 }
 
 .food {
@@ -139,12 +143,93 @@ main {
   border-color: transparent;
 }
 
-/* ── Controls hint ── */
+/* ── On-Screen D-Pad (Visible on Small & Medium Devices) ── */
+.dpad-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+
+.dpad-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.dpad-btn {
+  width: 52px;
+  height: 52px;
+  background: var(--bg-surface);
+  border: 1px solid #2e2e2e;
+  color: var(--text-primary);
+  border-radius: 12px;
+  font-size: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: background 0.1s ease, transform 0.1s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+.dpad-btn:active {
+  background: #252525;
+  transform: scale(0.92);
+  border-color: var(--accent);
+}
+
+.pause-btn {
+  font-size: 14px;
+  background: #1c1c1c;
+  color: var(--accent);
+}
+
 .controls-hint {
   font-size: 11px;
   color: var(--text-muted);
   flex-shrink: 0;
   letter-spacing: 0.03em;
+}
+
+/* Hide D-Pad on Large Desktop screens */
+@media (min-width: 1024px) {
+  .dpad-controls {
+    display: none;
+  }
+}
+
+/* Hide Keyboard hints on Mobile/Tablet screens */
+@media (max-width: 1023px) {
+  .controls-hint {
+    display: none;
+  }
+}
+
+/* Dynamic --cell Scaling for Responsive Layouts */
+@media (max-width: 768px) {
+  :root {
+    --cell: 20px;
+  }
+  .info span:last-child {
+    font-size: 14px;
+  }
+  .info-label {
+    font-size: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --cell: 16px;
+  }
+  .dpad-btn {
+    width: 46px;
+    height: 46px;
+    font-size: 16px;
+  }
 }
 
 /* ── Modal ── */
@@ -153,12 +238,13 @@ main {
   width: 100vw;
   position: fixed;
   inset: 0;
-  background-color: #000000bb;
+  background-color: rgba(0, 0, 0, 0.8);
   backdrop-filter: blur(8px);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 10;
+  padding: 16px;
 }
 
 .start-game,
@@ -166,27 +252,27 @@ main {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
+  gap: 16px;
   background: var(--bg-surface);
   border: 1px solid #2a2a2a;
   border-radius: var(--radius-lg);
-  padding: 40px 36px;
-  width: 340px;
+  padding: 30px 24px;
+  width: 100%;
+  max-width: 340px;
   text-align: center;
-  box-shadow: 0 24px 80px #00000099;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.9);
 }
 
 .start-game h2,
 .game-over h2 {
-  font-size: 26px;
-  letter-spacing: -0.02em;
+  font-size: 24px;
 }
 
 .start-game p,
 .game-over p {
   color: var(--text-muted);
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: 13px;
+  line-height: 1.4;
 }
 
 .game-over {
@@ -202,10 +288,10 @@ main {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text-muted);
   background: #1a1a1a;
-  padding: 10px 16px;
+  padding: 10px;
   border-radius: var(--radius-sm);
   width: 100%;
   border: 1px solid var(--border);
@@ -213,7 +299,7 @@ main {
 
 /* ── Button ── */
 .btn {
-  padding: 10px 24px;
+  padding: 12px 24px;
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
@@ -223,37 +309,30 @@ main {
   background: var(--accent);
   color: #0c0c0c;
   width: 100%;
-  letter-spacing: 0.02em;
 }
 
 .btn:hover {
   background: #6ee7a0;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 16px #4ade8044;
+  box-shadow: 0 4px 16px rgba(74, 222, 128, 0.3);
 }
 
-.btn:active {
-  transform: translateY(0);
-}
-
-/* ── Pause overlay ── */
+/* ── Pause Overlay ── */
 .pause-overlay {
   display: none;
   position: fixed;
   inset: 0;
-  background-color: #00000099;
+  background-color: rgba(0, 0, 0, 0.7);
   backdrop-filter: blur(6px);
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   z-index: 9;
 }
 
 .pause-overlay h2 {
-  font-size: 40px;
+  font-size: 36px;
   color: var(--accent);
-  letter-spacing: -0.02em;
 }
 
 .pause-overlay p {
@@ -261,17 +340,9 @@ main {
   font-size: 13px;
 }
 
-/* ── Level-up flash ── */
 @keyframes levelFlash {
-  0% {
-    color: var(--accent);
-    transform: scale(1.4);
-  }
-
-  100% {
-    color: var(--accent);
-    transform: scale(1);
-  }
+  0% { transform: scale(1.4); }
+  100% { transform: scale(1); }
 }
 
 .level-up {
