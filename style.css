@@ -11,6 +11,7 @@ body {
   height: 100%;
   width: 100%;
   overflow: hidden;
+  touch-action: manipulation;
 }
 
 :root {
@@ -22,28 +23,16 @@ body {
   --bg-head: #ffffff;
 
   --text-primary: #f0f0f0;
-  --text-muted: #888;
+  --text-muted: #888888;
 
-  --border: #222;
+  --border: #222222;
   --accent: #4ade80;
 
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 20px;
 
-  --cell: 22px;
-}
-
-@media (min-width: 600px) {
-  :root {
-    --cell: 26px;
-  }
-}
-
-@media (min-width: 1024px) {
-  :root {
-    --cell: 28px;
-  }
+  --cell: 24px;
 }
 
 html {
@@ -52,6 +41,7 @@ html {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
+/* ── Layout ── */
 body {
   display: flex;
   justify-content: center;
@@ -62,19 +52,20 @@ main {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: space-between;
   gap: 12px;
-  width: 100%;
-  height: 100%;
-  padding: 12px 10px;
-  max-width: 800px;
+  width: 100vw;
+  height: 100vh;
+  padding: 16px;
 }
 
-/* ── Info Bar ── */
+/* ── Info bar ── */
 .infos {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 8px;
   width: 100%;
-  justify-content: center;
+  max-width: 500px;
   flex-shrink: 0;
 }
 
@@ -82,12 +73,12 @@ main {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 6px 12px;
+  justify-content: center;
+  padding: 6px 10px;
   background: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  flex: 1;
-  max-width: 110px;
+  min-width: 0;
 }
 
 .info-label {
@@ -96,6 +87,7 @@ main {
   letter-spacing: 0.08em;
   color: var(--text-muted);
   margin-bottom: 2px;
+  white-space: nowrap;
 }
 
 .info span:last-child {
@@ -105,14 +97,16 @@ main {
   font-variant-numeric: tabular-nums;
 }
 
-/* ── Board Wrapper ── */
+/* ── Board wrapper keeps it responsive & centered ── */
 .board-wrapper {
   flex: 1;
   width: 100%;
+  max-width: 600px;
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 0;
+  overflow: hidden;
 }
 
 .board {
@@ -131,8 +125,8 @@ main {
 .block {
   width: var(--cell);
   height: var(--cell);
-  border-right: 1px solid #181818;
-  border-bottom: 1px solid #181818;
+  border-right: 1px solid #161616;
+  border-bottom: 1px solid #161616;
 }
 
 .fill {
@@ -155,14 +149,14 @@ main {
   border-color: transparent;
 }
 
-/* ── Touch D-Pad Controls ── */
-.controls-container {
+/* ── Touch Controls (D-Pad) ── */
+.touch-controls {
   display: flex;
   justify-content: center;
   align-items: center;
   width: 100%;
+  padding-top: 4px;
   flex-shrink: 0;
-  margin-top: 4px;
 }
 
 .dpad {
@@ -174,38 +168,44 @@ main {
 
 .dpad-middle {
   display: flex;
-  gap: 36px;
+  align-items: center;
+  gap: 6px;
+}
+
+.dpad-center {
+  width: 52px;
+  height: 52px;
+  background: transparent;
 }
 
 .dpad-btn {
-  width: 52px;
-  height: 52px;
+  width: 56px;
+  height: 56px;
   background: var(--bg-surface);
-  border: 1px solid #333;
-  color: var(--accent);
+  border: 1px solid #2a2a2a;
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
   font-size: 18px;
-  border-radius: 12px;
+  font-weight: bold;
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
   touch-action: manipulation;
-  transition: background 0.1s, transform 0.1s;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
 }
 
 .dpad-btn:active {
-  background: #252525;
-  transform: scale(0.92);
-  border-color: var(--accent);
+  background: var(--accent);
+  color: #0c0c0c;
+  transform: scale(0.95);
 }
 
-/* ── Controls Hint ── */
+/* ── Controls hint ── */
 .controls-hint {
   font-size: 11px;
   color: var(--text-muted);
   flex-shrink: 0;
-  letter-spacing: 0.03em;
   text-align: center;
 }
 
@@ -233,9 +233,9 @@ main {
   background: var(--bg-surface);
   border: 1px solid #2a2a2a;
   border-radius: var(--radius-lg);
-  padding: 28px 24px;
+  padding: 32px 24px;
   width: 100%;
-  max-width: 320px;
+  max-width: 340px;
   text-align: center;
   box-shadow: 0 24px 80px #00000099;
 }
@@ -243,14 +243,13 @@ main {
 .start-game h2,
 .game-over h2 {
   font-size: 24px;
-  letter-spacing: -0.02em;
 }
 
 .start-game p,
 .game-over p {
   color: var(--text-muted);
   font-size: 13px;
-  line-height: 1.5;
+  line-height: 1.4;
 }
 
 .game-over {
@@ -266,7 +265,7 @@ main {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-muted);
   background: #1a1a1a;
   padding: 10px 14px;
@@ -287,27 +286,31 @@ main {
   background: var(--accent);
   color: #0c0c0c;
   width: 100%;
-  letter-spacing: 0.02em;
 }
 
-.btn:hover {
-  background: #6ee7a0;
-  transform: translateY(-1px);
+.btn:active {
+  transform: translateY(1px);
 }
 
-/* ── Animations ── */
-@keyframes levelFlash {
-  0% {
-    color: var(--accent);
-    transform: scale(1.4);
+/* ── Responsive Screen Sizes ── */
+@media (min-width: 768px) {
+  :root {
+    --cell: 28px;
   }
 
-  100% {
-    color: var(--accent);
-    transform: scale(1);
+  .touch-controls {
+    display: none; /* Desktop par keyboard primary hota hai */
   }
-}
 
-.level-up {
-  animation: levelFlash 0.4s ease-out;
+  .info {
+    padding: 8px 20px;
+  }
+
+  .info-label {
+    font-size: 10px;
+  }
+
+  .info span:last-child {
+    font-size: 18px;
+  }
 }
